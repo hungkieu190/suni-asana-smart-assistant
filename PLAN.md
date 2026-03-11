@@ -1,9 +1,9 @@
 # PLAN: Asana Manager Dashboard — WP Admin Edition
 
-> **Phiên bản**: 2.1 — Cập nhật ngày 2026-03-11  
+> **Phiên bản**: 2.2 — Cập nhật ngày 2026-03-11  
 > **Vai trò người dùng**: Quản lý dự án / BA  
 > **Nền tảng**: WordPress Admin (backend only)  
-> **Trạng thái**: 🟡 Đang phát triển (Phase 4)
+> **Trạng thái**: 🟡 Đang phát triển (Phase 11)
 
 ---
 
@@ -520,6 +520,38 @@ admin/
 
 ---
 
+      - PHP: AJAX return projects
+      - JS: Rebuild dropdown + update live counts
+
+---
+
+### PHASE 8 — Collaborator Tasks (Asana Free Workaround)
+> **Mục tiêu**: Lấy các task anh đang theo dõi (followers) mà không cần Premium.
+
+- [ ] **API-11** Thêm method `get_project_tasks($project_gid)` — Lấy task theo project.
+- [ ] **CRON-09** Method `sync_collaborator_tasks()` — Chạy vòng lặp qua các project để tìm task user đang follow.
+- [ ] **DASH-13** Thêm stat card "🤝 Collaborator" và cập nhật filter label.
+- [ ] **AI-18** Inject bối cảnh collaborator vào prompt AI.
+
+---
+
+### PHASE 9 — Dynamic Filters & Live Counts
+> **Mục tiêu**: Bộ lọc và số liệu nhảy "tưng bừng" theo thao tác người dùng.
+
+- [ ] **PHP-11** Update `ajax_fetch_dashboard_table` trả về danh sách projects tương ứng với data đang load.
+- [ ] **JS-07** Method `updateProjectDropdown()` — Tự động cập nhật dropdown project khi đổi loại filter.
+- [ ] **JS-08** Live group counts: Tự động đếm task đang hiển thị và cập nhật vào tiêu đề nhóm (Overdue, Today...).
+
+---
+
+### PHASE 10 — Smart Due Date Intelligence
+> **Mục tiêu**: Suni nhận thức được thời gian, biết "đòi nợ" thông minh.
+
+- [ ] **JS-09** Analysis prompt: Tính toán số ngày trễ hạn/còn lại và đẩy vào prompt phân tích.
+- [ ] **AI-20** Reminder prompt: AI biết ngày hiện tại, tính được độ trễ cực lâu (ví dụ từ 2023) để yêu cầu cập nhật due date mới.
+
+---
+
 #### 7.5 — Dashboard UI: Mention Notification Panel
 
 **File**: `admin/templates/dashboard.php` + `admin/js/atd-dashboard.js` + `admin/css/atd-dashboard.css`
@@ -579,7 +611,25 @@ html_text chứa: <a data-asana-gid="USER_GID"/>
 
 ---
 
-**Tổng tiến độ**: 44/59 items hoàn thành 🟡
+### Phase 8 — Collaborator Tasks (4 items)
+- [x] API-11: `get_project_tasks()`
+- [x] CRON-09: `sync_collaborator_tasks()` (batch sync via cron)
+- [x] DASH-13: UI "🤝 Collaborator" + Filter renaming
+- [x] AI-18: Collaborator context in AI Assistant
+
+### Phase 9 — Dynamic Filters & Counts (3 items)
+- [x] PHP-11: AJAX handler returns unique projects
+- [x] JS-07: `updateProjectDropdown()` logic
+- [x] JS-08: Live group count updates (search/project filter)
+
+### Phase 10 — Smart Due Date Intelligence (3 items)
+- [x] JS-09: Deadline context in Analyze prompt
+- [x] AI-20: Overdue awareness in Reminder prompt
+- [x] AI-21: AI demands new due date for severely late tasks
+
+---
+
+**Tổng tiến độ**: 57/72 items hoàn thành 🟡
 
 ---
 

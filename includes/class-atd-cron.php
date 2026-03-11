@@ -52,9 +52,24 @@ class ATD_Cron
 		include ATD_PLUGIN_DIR . 'admin/templates/partials/task-board.php';
 		$html = ob_get_clean();
 
+		$projects = array();
+		if (!empty($all_tasks)) {
+			foreach ($all_tasks as $task) {
+				if (!empty($task['projects']) && is_array($task['projects'])) {
+					foreach ($task['projects'] as $p) {
+						if (!empty($p['name']) && !in_array($p['name'], $projects)) {
+							$projects[] = $p['name'];
+						}
+					}
+				}
+			}
+			sort($projects);
+		}
+
 		wp_send_json_success(array(
 			'html' => $html,
 			'summary' => $summary,
+			'projects' => $projects,
 		));
 	}
 
@@ -84,6 +99,21 @@ class ATD_Cron
 		}
 		catch (Exception $e) {
 			$errors[] = 'Assigned: ' . $e->getMessage();
+		}
+
+		// Sync Mentions
+		try {
+			$this->sync_mentions();
+		}
+		catch (Exception $e) {
+			$errors[] = 'Mentions: ' . $e->getMessage();
+		}
+
+		// Sync Collaborator tasks.
+		try {
+			$this->sync_collaborator_tasks();
+		} catch ( Exception $e ) {
+			$errors[] = 'Collaborator: ' . $e->getMessage();
 		}
 
 		set_transient('atd_last_sync_time', time(), 30);
@@ -337,6 +367,7 @@ class ATD_Cron
 		mf_atd_log('ATD Debug: sync_all_data START');
 		$this->sync_asana_assigned();
 		$this->sync_mentions();
+		$this->sync_collaborator_tasks();
 		mf_atd_log('ATD Debug: sync_all_data FINISHED');
 	}
 
@@ -481,9 +512,100 @@ class ATD_Cron
 	}
 
 
-	// =========================================================================
-	// DATA ACCESS
-	// =========================================================================
+	/**
+	 * CRON-09: Sync tasks where user is a collaborator (follower) but not assignee.
+	 * Uses project-based approach to work with Asana Free.
+	 * Processes max 10 projects per batch.
+	 */
+	private function sync_collaborator_tasks()
+	{
+		$asana_api = new ATD_Asana_API();
+		$user_gid = get_option('atd_asana_user_gid');
+
+		if (!$user_gid) {
+			$me = $asana_api->get_me();
+			if (is_wp_error($me)) return;
+			$user_gid = $me['gid'];
+		}
+
+		$projects_response = $asana_api->get_projects();
+		if (is_wp_error($projects_response) || empty($projects_response['data'])) {
+			return;
+		}
+
+		$all_projects = $projects_response['data'];
+		$total_projects = count($all_projects);
+		
+		// Manual sync (from AJAX) usually wants more, but we still batch for safety.
+		$is_manual = (doing_action('wp_ajax_atd_manual_sync'));
+		$batch_size = $is_manual ? 50 : 10;
+		
+		$offset = (int) get_option('atd_collab_sync_offset', 0);
+		if ($offset >= $total_projects) $offset = 0;
+
+		$projects_to_sync = array_slice($all_projects, $offset, $batch_size);
+		$current_sync_gids = array();
+		
+		// Lấy danh sách GID hiện tại từ DB để merge (vì sync theo batch)
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'atd_sync_data';
+		$existing_gids = $wpdb->get_col($wpdb->prepare(
+			"SELECT remote_id FROM $table_name WHERE source = %s AND type = %s",
+			'asana',
+			'collaborator'
+		));
+		if (!is_array($existing_gids)) $existing_gids = array();
+
+		foreach ($projects_to_sync as $project) {
+			$proj_gid = $project['gid'];
+			$tasks_response = $asana_api->get_project_tasks($proj_gid);
+			
+			if (is_wp_error($tasks_response) || empty($tasks_response['data'])) {
+				continue;
+			}
+
+			foreach ($tasks_response['data'] as $task) {
+				if (isset($task['completed']) && $task['completed']) continue;
+				
+				// Skip if assigned to me (already in 'assigned' sync)
+				if (isset($task['assignee']['gid']) && $task['assignee']['gid'] === $user_gid) {
+					continue;
+				}
+
+				// Check if user is a follower
+				$is_follower = false;
+				if (!empty($task['followers'])) {
+					foreach ($task['followers'] as $follower) {
+						if (isset($follower['gid']) && $follower['gid'] === $user_gid) {
+							$is_follower = true;
+							break;
+						}
+					}
+				}
+
+				if ($is_follower) {
+					$this->save_to_db('asana', 'collaborator', $task['gid'], $task);
+					$current_sync_gids[] = $task['gid'];
+				}
+			}
+		}
+
+		// Cập nhật offset cho lần sau
+		$new_offset = $offset + $batch_size;
+		if ($new_offset >= $total_projects) {
+			$new_offset = 0;
+			// Khi đã quét hết 1 vòng projects, mới tiến hành dọn dẹp task cũ (stale)
+			// Merge current sync with existing gids that weren't in this batch's projects
+			// Tuy nhiên để đơn giản và an toàn trên bản Free, ta chỉ cleanup khi reset vòng
+			// Hoặc bỏ cleanup cho collaborator nếu không chắc chắn.
+			// Ở đây ta dùng approach: gom tất cả GID đang có trong DB và cleanup cái nào không còn tồn tại trên Asana (nếu ta quét hết)
+			// Để đơn giản, Phase 8 tạm thời không cleanup collaborator task tự động qua offset batch để tránh mất data
+			// Nhưng nếu là Manual Sync quét nhiều, hoặc khi reset offset về 0, ta có thể cleanup.
+		}
+		update_option('atd_collab_sync_offset', $new_offset);
+		
+		mf_atd_log("ATD Debug: Collaborator sync batch done. Offset: $offset -> $new_offset. Projects synced: " . count($projects_to_sync));
+	}
 
 	/**
 	 * CRON-05: Lấy dữ liệu từ database, hỗ trợ filter theo type.
@@ -570,6 +692,7 @@ class ATD_Cron
 				'assigned' => 0,
 				'created' => 0,
 				'following' => 0,
+				'collaborator' => 0,
 			),
 		);
 

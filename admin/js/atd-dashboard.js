@@ -105,10 +105,37 @@ jQuery( document ).ready( function ( $ ) {
 				if ( response.data.summary ) {
 					updateSummaryBar( response.data.summary );
 				}
+				if ( response.data.projects ) {
+					updateProjectDropdown( response.data.projects );
+				}
 				restoreCollapseState();
 				applyClientFilter();
 			}
 		} );
+	}
+
+	function updateProjectDropdown( projects ) {
+		var $dropdown = $( '#atd-filter-project' );
+		var selected  = $dropdown.val();
+		
+		// Giữ nguyên option đầu tiên (Tất cả dự án)
+		$dropdown.find( 'option:not(:first)' ).remove();
+
+		if ( projects && projects.length > 0 ) {
+			projects.forEach( function ( project ) {
+				$dropdown.append( $( '<option>', {
+					value: project,
+					text:  project
+				} ) );
+			} );
+		}
+
+		// Restore selection nếu project cũ vẫn còn trong list mới
+		if ( projects.indexOf( selected ) !== -1 ) {
+			$dropdown.val( selected );
+		} else {
+			$dropdown.val( 'all' );
+		}
 	}
 
 	function updateSummaryBar( summary ) {
@@ -116,6 +143,7 @@ jQuery( document ).ready( function ( $ ) {
 		$( '#atd-stat-overdue' ).text( summary.overdue );
 		$( '#atd-stat-today' ).text( summary.today );
 		$( '#atd-stat-upcoming' ).text( summary.upcoming );
+		$( '#atd-stat-collaborator' ).text( summary.by_type.collaborator || 0 );
 	}
 
 	// =========================================================
@@ -197,13 +225,20 @@ jQuery( document ).ready( function ( $ ) {
 				$card.hide();
 			}
 		} );
+
+		// JS-11: Cập nhật chỉ số đếm trong mỗi group header dựa trên filter hiện tại
+		$( '.atd-task-group' ).each( function () {
+			var $group = $( this );
+			var visibleCount = $group.find( '.atd-task-card:visible' ).length;
+			$group.find( '.atd-group-count' ).text( visibleCount );
+		} );
 	}
 
 	$( '#atd-search-input' ).on( 'input', applyClientFilter );
 	$( '#atd-filter-project' ).on( 'change', applyClientFilter );
 	$( '#atd-filter-type' ).on( 'change', function () {
 		var val = $( this ).val();
-		if ( val === 'created' || val === 'following' ) {
+		if ( val === 'created' ) {
 			alert( 'Dữ liệu này yêu cầu tài khoản Asana Premium (Gói trả phí) để lấy dữ liệu toàn bộ Workspace. Plugin sẽ ưu tiên hiển thị các Task được giao (Assigned) cho anh.' );
 			$( this ).val( 'all' );
 			return;
@@ -315,13 +350,32 @@ jQuery( document ).ready( function ( $ ) {
 					subtasksStr = 'Không có task con.';
 				}
 
+				// Deadline intelligence
+				var dueStatus = "⚠️ KHÔNG CÓ DUE DATE";
+				if ( data.task.due_on ) {
+					var todayStr = new Date().toISOString().split('T')[0];
+					var dueDt = new Date( data.task.due_on );
+					var formattedDue = dueDt.toLocaleDateString('vi-VN');
+					
+					if ( data.task.due_on < todayStr ) {
+						var diff = Math.floor((new Date(todayStr) - dueDt) / (1000 * 60 * 60 * 24));
+						dueStatus = "🔥 QUÁ HẠN " + diff + " ngày (Deadline: " + formattedDue + ")";
+					} else if ( data.task.due_on === todayStr ) {
+						dueStatus = "⏰ ĐẾN HẠN HÔM NAY (" + formattedDue + ")";
+					} else {
+						var diff = Math.floor((dueDt - new Date(todayStr)) / (1000 * 60 * 60 * 24));
+						dueStatus = "📅 Còn " + diff + " ngày (Deadline: " + formattedDue + ")";
+					}
+				}
+
 				// Build system prompt for AI
 				var aiPrompt = "Dưới đây là DỮ LIỆU ĐẦY ĐỦ của Task mà anh " + atdConfig.userLabel + " vừa yêu cầu phân tích.\n"
 					+ "Tên Task: " + name + "\n"
+					+ "⏱ Tình trạng Deadline: " + dueStatus + "\n"
 					+ "Mô tả gốc:\n" + taskDesc + "\n\n"
 					+ "Các task con (Subtasks) và người phụ trách:\n" + subtasksStr + "\n\n"
 					+ "Các bình luận/trao đổi:\n" + commentsStr + "\n\n"
-					+ "Hãy đọc tất cả và tóm tắt theo sườn: 1. Mục tiêu task 2. Các mảng việc đang triển khai (dựa trên subtasks, nêu rõ Dev nào đang phụ trách phần nào) 3. Tình trạng tiến độ hiện tại 4. Khó khăn/Rủi ro nếu có. Trình bày ngắn gọn, dễ hiểu, có emoji.";
+					+ "Hãy đọc tất cả và tóm tắt theo sườn: 1. Mục tiêu task 2. Các mảng việc đang triển khai (dựa trên subtasks, nêu rõ Dev nào đang phụ trách phần nào) 3. Tình trạng tiến độ hiện tại 4. Khó khăn/Rủi ro nếu có 5. Đánh giá Deadline (đang trễ hay đúng hạn, nếu trễ quá lâu thì yêu cầu đẩy nhanh). Trình bày ngắn gọn, dễ hiểu, có emoji.";
 
 				// Send to AI (hide prompt from UI, only send to backend)
 				$.ajax( {

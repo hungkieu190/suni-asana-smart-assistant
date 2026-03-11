@@ -179,9 +179,8 @@ class ATD_Asana_API {
 	 * Endpoint: POST /tasks/{gid}/stories
 	 * Yêu cầu scope: stories:write
 	 */
-	public function create_story( $task_gid, $text ) {
+	public function create_story( $task_gid, $text, $is_html = false ) {
 		$task_gid = sanitize_text_field( $task_gid );
-		$text     = sanitize_textarea_field( $text );
 
 		if ( ! $task_gid || ! $text ) {
 			return new WP_Error( 'missing_params', __( 'Thiếu Task GID hoặc nội dung comment.', 'asana-teams-dashboard' ) );
@@ -189,9 +188,18 @@ class ATD_Asana_API {
 
 		$endpoint = '/tasks/' . $task_gid . '/stories';
 
+		$body_data = array();
+		if ( $is_html ) {
+			// Asana requires html_text to be wrapped in <body> tags
+			// We don't sanitize_textarea_field here because it might strip HTML tags
+			$body_data['html_text'] = '<body>' . $text . '</body>';
+		} else {
+			$body_data['text'] = sanitize_textarea_field( $text );
+		}
+
 		$args = array(
 			'method'  => 'POST',
-			'body'    => wp_json_encode( array( 'data' => array( 'text' => $text ) ) ),
+			'body'    => wp_json_encode( array( 'data' => $body_data ) ),
 			'headers' => array(
 				'Content-Type' => 'application/json',
 			),
@@ -281,6 +289,27 @@ class ATD_Asana_API {
 		}
 
 		$endpoint = '/tasks/' . $task_gid . '/subtasks?opt_fields=name,assignee.name,completed,due_on';
+
+		return $this->request( $endpoint );
+	}
+
+	/**
+	 * API-11: Lấy danh sách task từ một project (dùng cho bản Free).
+	 * Endpoint: GET /tasks?project={gid}&completed_since=now
+	 */
+	public function get_project_tasks( $project_gid, $limit = 50, $offset = '' ) {
+		$project_gid = sanitize_text_field( $project_gid );
+		if ( ! $project_gid ) {
+			return new WP_Error( 'missing_gid', __( 'Thiêu Project GID.', 'asana-teams-dashboard' ) );
+		}
+
+		$endpoint = '/tasks?project=' . $project_gid . '&completed_since=now&limit=' . $limit;
+		if ( $offset ) {
+			$endpoint .= '&offset=' . $offset;
+		}
+		
+		// opt_fields: followers.gid để check collaborator, assignee.gid để skip assigned task
+		$endpoint .= '&opt_fields=name,due_on,projects.name,notes,assignee.name,assignee.gid,permalink_url,resource_subtype,modified_at,created_at,completed,followers.gid';
 
 		return $this->request( $endpoint );
 	}

@@ -87,6 +87,10 @@ if ( empty( $history ) || ! is_array( $history ) ) {
 			<span class="atd-stat-number" id="atd-stat-upcoming"><?php echo esc_html( $summary['upcoming'] ); ?></span>
 			<span class="atd-stat-label"><?php esc_html_e( '📅 Sắp tới', 'asana-teams-dashboard' ); ?></span>
 		</div>
+		<div class="atd-stat-card is-collaborator">
+			<span class="atd-stat-number" id="atd-stat-collaborator"><?php echo esc_html( $summary['by_type']['collaborator'] ); ?></span>
+			<span class="atd-stat-label" title="<?php esc_attr_e( 'Task anh là người theo dõi (Collaborator)', 'asana-teams-dashboard' ); ?>">🤝 Collaborator</span>
+		</div>
 	</div>
 
 	<!-- Marked.js cho render Markdown trong chat -->
@@ -116,8 +120,7 @@ if ( empty( $history ) || ! is_array( $history ) ) {
 				<select id="atd-filter-type">
 					<option value="all"><?php esc_html_e( 'Tất cả loại', 'asana-teams-dashboard' ); ?></option>
 					<option value="assigned"><?php esc_html_e( 'Assigned to me', 'asana-teams-dashboard' ); ?></option>
-					<option value="created"><?php esc_html_e( 'Do tôi tạo', 'asana-teams-dashboard' ); ?></option>
-					<option value="following"><?php esc_html_e( 'Tôi theo dõi', 'asana-teams-dashboard' ); ?></option>
+					<option value="collaborator"><?php esc_html_e( 'Collaborator', 'asana-teams-dashboard' ); ?></option>
 				</select>
 
 				<select id="atd-filter-project">
