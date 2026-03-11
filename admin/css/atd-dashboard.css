@@ -1,0 +1,619 @@
+/**
+ * Asana Teams Dashboard — Admin Styles
+ * File: admin/css/atd-dashboard.css
+ */
+
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+.atd-dashboard .atd-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16px;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.atd-main-content {
+	display: flex;
+	gap: 20px;
+	align-items: flex-start;
+}
+
+.atd-task-board {
+	flex: 2;
+	min-width: 0;
+}
+
+.atd-assistant-sidebar {
+	flex: 1;
+	min-width: 300px;
+	max-width: 380px;
+	position: sticky;
+	top: 32px;
+}
+
+/* =========================================================
+   SUMMARY BAR
+   ========================================================= */
+.atd-summary-bar {
+	display: flex;
+	gap: 12px;
+	margin-bottom: 16px;
+	flex-wrap: wrap;
+}
+
+.atd-stat-card {
+	flex: 1;
+	min-width: 120px;
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 6px;
+	padding: 12px 16px;
+	text-align: center;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.atd-stat-card .atd-stat-number {
+	display: block;
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.atd-stat-card .atd-stat-label {
+	display: block;
+	font-size: 12px;
+	color: #666;
+	margin-top: 4px;
+}
+
+.atd-stat-card.is-overdue   { border-top: 3px solid #ef4444; }
+.atd-stat-card.is-overdue   .atd-stat-number { color: #ef4444; }
+.atd-stat-card.is-today     { border-top: 3px solid #f59e0b; }
+.atd-stat-card.is-today     .atd-stat-number { color: #f59e0b; }
+.atd-stat-card.is-upcoming  { border-top: 3px solid #3b82f6; }
+.atd-stat-card.is-upcoming  .atd-stat-number { color: #3b82f6; }
+.atd-stat-card.is-total     { border-top: 3px solid #6b7280; }
+.atd-stat-card.is-total     .atd-stat-number { color: #374151; }
+
+/* =========================================================
+   QUICK ADD TASK
+   ========================================================= */
+.atd-quick-add-wrap {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	padding: 12px 16px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+#atd-quick-add-form {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+#atd-quick-add-form input[type="text"] {
+	height: 34px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 0 10px;
+	font-size: 13px;
+}
+
+#atd-new-task-name {
+	flex: 2;
+	min-width: 250px;
+}
+
+#atd-new-task-notes {
+	flex: 3;
+	min-width: 200px;
+}
+
+#atd-new-task-due {
+	height: 34px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 0 10px;
+	font-size: 13px;
+	width: 140px;
+}
+
+#atd-submit-new-task-btn {
+	height: 34px;
+	padding: 0 16px;
+}
+
+/* =========================================================
+   FILTER BAR
+   ========================================================= */
+.atd-filter-bar {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 16px;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.atd-filter-bar select,
+.atd-filter-bar input[type="text"] {
+	height: 34px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 0 10px;
+	font-size: 13px;
+}
+
+.atd-filter-bar input[type="text"] {
+	min-width: 200px;
+}
+
+.atd-filter-bar .atd-search-wrap {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.atd-filter-bar .atd-search-wrap .dashicons {
+	position: absolute;
+	left: 8px;
+	color: #999;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.atd-filter-bar .atd-search-wrap input {
+	padding-left: 28px;
+}
+
+/* =========================================================
+   TASK GROUP
+   ========================================================= */
+.atd-task-group {
+	margin-bottom: 20px;
+}
+
+.atd-group-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 14px;
+	background: #f5f5f5;
+	border: 1px solid #e0e0e0;
+	border-radius: 6px 6px 0 0;
+	cursor: pointer;
+	user-select: none;
+	transition: background 0.15s ease;
+}
+
+.atd-group-header:hover {
+	background: #eaeaea;
+}
+
+.atd-group-header .atd-group-title {
+	font-weight: 600;
+	font-size: 14px;
+	flex: 1;
+}
+
+.atd-group-header .atd-group-count {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 12px;
+	padding: 2px 8px;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.atd-group-header .atd-collapse-icon {
+	font-size: 16px;
+	width: 16px;
+	transition: transform 0.2s ease;
+	color: #666;
+}
+
+.atd-task-group.is-collapsed .atd-collapse-icon {
+	transform: rotate(-90deg);
+}
+
+.atd-group-header.is-overdue   { background: #fef2f2; border-color: #fca5a5; }
+.atd-group-header.is-overdue .atd-group-count { border-color: #ef4444; color: #ef4444; }
+.atd-group-header.is-today     { background: #fffbeb; border-color: #fcd34d; }
+.atd-group-header.is-today .atd-group-count { border-color: #f59e0b; color: #f59e0b; }
+.atd-group-header.is-upcoming  { background: #eff6ff; border-color: #93c5fd; }
+.atd-group-header.is-upcoming .atd-group-count { border-color: #3b82f6; color: #3b82f6; }
+.atd-group-header.is-no-due    { background: #f9fafb; border-color: #e0e0e0; }
+
+.atd-group-body {
+	border: 1px solid #e0e0e0;
+	border-top: none;
+	border-radius: 0 0 6px 6px;
+	overflow: hidden;
+	transition: max-height 0.25s ease, opacity 0.2s ease;
+}
+
+.atd-task-group.is-collapsed .atd-group-body {
+	display: none;
+}
+
+/* =========================================================
+   TASK CARD
+   ========================================================= */
+.atd-task-card {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 12px 14px;
+	background: #fff;
+	border-bottom: 1px solid #f0f0f0;
+	transition: background 0.1s ease;
+}
+
+.atd-task-card:last-child {
+	border-bottom: none;
+}
+
+.atd-task-card:hover {
+	background: #fafafa;
+}
+
+.atd-task-card .atd-card-top {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.atd-task-card .atd-task-name {
+	font-weight: 600;
+	font-size: 13px;
+	color: #1d2327;
+	text-decoration: none;
+	flex: 1;
+	line-height: 1.4;
+}
+
+.atd-task-card .atd-task-name:hover {
+	color: #2271b1;
+}
+
+.atd-task-card .atd-task-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: center;
+	font-size: 12px;
+	color: #555;
+}
+
+.atd-task-card .atd-task-notes {
+	font-size: 12px;
+	color: #777;
+	font-style: italic;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
+}
+
+.atd-task-card .atd-card-actions {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+/* =========================================================
+   BADGES
+   ========================================================= */
+.atd-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.atd-badge.badge-overdue   { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+.atd-badge.badge-today     { background: #fffbeb; color: #d97706; border: 1px solid #fcd34d; }
+.atd-badge.badge-upcoming  { background: #eff6ff; color: #2563eb; border: 1px solid #93c5fd; }
+.atd-badge.badge-no-due    { background: #f9fafb; color: #6b7280; border: 1px solid #d1d5db; }
+.atd-badge.badge-assigned  { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
+.atd-badge.badge-created   { background: #faf5ff; color: #7c3aed; border: 1px solid #c4b5fd; }
+.atd-badge.badge-following { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+.atd-badge.badge-project   { background: #f0f9ff; color: #0369a1; border: 1px solid #7dd3fc; }
+
+/* =========================================================
+   CHAT ASSISTANT
+   ========================================================= */
+.atd-assistant-sidebar .atd-sidebar-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.atd-chat-container {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 6px;
+	display: flex;
+	flex-direction: column;
+	height: 520px;
+}
+
+#atd-chat-messages {
+	flex: 1;
+	overflow-y: auto;
+	padding: 14px;
+	background: #f0f6fb;
+}
+
+.atd-msg {
+	margin-bottom: 14px;
+}
+
+.atd-msg .atd-msg-bubble {
+	padding: 10px 12px;
+	border-radius: 10px;
+	display: inline-block;
+	max-width: 88%;
+	font-size: 13px;
+	line-height: 1.5;
+	text-align: left;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	word-break: break-word;
+}
+
+.atd-msg.user-msg {
+	text-align: right;
+}
+
+.atd-msg.user-msg .atd-msg-bubble {
+	background: #dcf8c6;
+	border-bottom-right-radius: 0;
+}
+
+.atd-msg.suni-msg .atd-msg-bubble {
+	background: #e1f0ff;
+	border-bottom-left-radius: 0;
+}
+
+.atd-msg .atd-msg-sender {
+	font-weight: 600;
+	font-size: 12px;
+	margin-bottom: 3px;
+	display: block;
+}
+
+.atd-chat-input-area {
+	padding: 10px;
+	border-top: 1px solid #ccd0d4;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.atd-chat-input-row {
+	display: flex;
+	gap: 6px;
+}
+
+#atd-chat-input-field {
+	flex: 1;
+	border-radius: 18px;
+	padding: 6px 14px;
+}
+
+#atd-chat-send-btn {
+	border-radius: 18px;
+	padding: 0 14px;
+	font-weight: 600;
+}
+
+.atd-quick-actions {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.atd-quick-actions .button {
+	font-size: 11px;
+	height: 26px;
+	line-height: 24px;
+	padding: 0 8px;
+}
+
+/* =========================================================
+   DEBUG PANEL
+   ========================================================= */
+.atd-debug-panel {
+	margin-top: 16px;
+}
+
+.atd-debug-panel .atd-debug-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 6px;
+}
+
+.atd-debug-panel h3 {
+	margin: 0;
+	font-size: 13px;
+	color: #666;
+}
+
+#atd-debug-logs {
+	background: #1e1e1e;
+	color: #00ff00;
+	padding: 10px;
+	border-radius: 4px;
+	height: 180px;
+	overflow-y: auto;
+	font-family: monospace;
+	font-size: 11px;
+	line-height: 1.4;
+	white-space: pre-wrap;
+	border: 1px solid #333;
+}
+
+/* =========================================================
+   ACTIONS & UTILITIES
+   ========================================================= */
+.atd-actions {
+	display: flex;
+	align-items: center;
+	gap: 12px; /* Tăng khoảng cách nhẹ cho các item */
+	flex-wrap: nowrap; /* Không xuống dòng */
+}
+
+.atd-actions .button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px; /* Cách chữ và icon */
+}
+
+.atd-actions .dashicons {
+	line-height: 1; /* Căn giữa icon với chữ */
+}
+
+#atd-sync-status {
+	font-size: 13px;
+	line-height: 1;
+}
+
+#atd-auto-sync-info {
+	font-style: italic;
+	color: #666;
+	font-size: 13px;
+	line-height: 1;
+	margin-left: auto; /* Đẩy bộ đếm thời gian sang góc phải (tuỳ chọn) */
+}
+
+/* Spinner animation */
+.is-active {
+	animation: atd-spin 1s infinite linear;
+}
+
+@keyframes atd-spin {
+	from { transform: rotate(0deg); }
+	to   { transform: rotate(359deg); }
+}
+
+/* Markdown content dans chat */
+.atd-msg-content a               { color: #2271b1; text-decoration: underline; }
+.atd-msg-content code            { background: #eee; padding: 2px 4px; border-radius: 3px; font-family: monospace; font-size: 12px; }
+.atd-msg-content pre             { background: #f6f6f6; padding: 10px; border-radius: 4px; overflow-x: auto; }
+.atd-msg-content ul,
+.atd-msg-content ol              { margin: 8px 0 8px 18px; }
+.atd-msg-content p               { margin: 0 0 8px 0; }
+.atd-msg-content p:last-child    { margin-bottom: 0; }
+.atd-msg-content strong          { font-weight: 600; }
+
+/* Empty state */
+.atd-empty-state {
+	padding: 24px;
+	text-align: center;
+	color: #777;
+	font-style: italic;
+}
+
+/* Modal comment preview */
+.atd-modal-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0,0,0,0.5);
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.atd-modal {
+	background: #fff;
+	border-radius: 8px;
+	padding: 24px;
+	max-width: 500px;
+	width: 90%;
+	box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.atd-modal h3 {
+	margin: 0 0 12px;
+	font-size: 15px;
+}
+
+.atd-modal textarea {
+	width: 100%;
+	min-height: 100px;
+	margin-bottom: 12px;
+	box-sizing: border-box;
+}
+
+.atd-modal .atd-modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+/* =========================================================
+   GUIDE MODAL SPECIFIC
+   ========================================================= */
+.atd-guide-content h3 {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 24px;
+	margin-bottom: 12px;
+	font-size: 16px;
+	border-bottom: 2px solid #f0f0f0;
+	padding-bottom: 6px;
+}
+
+.atd-guide-content h3:first-child {
+	margin-top: 0;
+}
+
+.atd-guide-content ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.atd-guide-content li {
+	margin-bottom: 15px;
+	padding-left: 20px;
+	position: relative;
+}
+
+.atd-guide-content li::before {
+	content: "•";
+	position: absolute;
+	left: 0;
+	color: #2271b1;
+	font-weight: bold;
+}
+
+.atd-guide-content p {
+	font-size: 14px;
+	color: #444;
+}
+
+.atd-modal-header h2 {
+	font-size: 18px;
+	color: #1d2327;
+}
+
+.atd-modal-close-guide:hover {
+	color: #d63638;
+}

@@ -1,0 +1,10 @@
+{
+  "name": "asana-teams-dashboard",
+  "version": "1.1.0",
+  "description": "Asana Teams Dashboard WordPress Plugin",
+  "scripts": {
+    "release": "bash scripts/release.sh",
+    "push": "bash scripts/push.sh"
+  },
+  "private": true
+}

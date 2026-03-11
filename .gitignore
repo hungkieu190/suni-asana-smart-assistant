@@ -1,0 +1,15 @@
+# WordPress
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dev
+node_modules/
+/release/
+
+# IDE
+.idea/
+.vscode/
+*.swp
