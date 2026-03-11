@@ -45,10 +45,11 @@ find "${BUILD_DIR}" -name "Thumbs.db" -delete
 find "${BUILD_DIR}" -name "*.log" -delete
 find "${BUILD_DIR}" -name "*.bak" -delete
 
-# 4. Tạo file zip (từ thư mục gốc, chỉ zip BUILD_DIR)
+# 4. Tạo file zip (vào thư mục release, chỉ lấy folder plugin)
 echo "📦 Tạo file ZIP..."
 ZIP_NAME="${PLUGIN_SLUG}-v${VERSION}.zip"
-(cd "${ROOT_DIR}" && zip -rq "${RELEASE_DIR}/${ZIP_NAME}" "${BUILD_DIR}")
+# Chuyển vào thư mục release để zip folder plugin bên trong, tránh lồng folder release/
+(cd "${RELEASE_DIR}" && zip -rq "../${RELEASE_DIR}/${ZIP_NAME}" "${PLUGIN_SLUG}")
 
 echo ""
 echo "✅ Đóng gói hoàn tất!"
